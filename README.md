@@ -1,5 +1,9 @@
 # Stock Market Prediction Using RSI + Machine Learning
 
+[![CI](https://github.com/rohithsure2000/stock-rsi-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/rohithsure2000/stock-rsi-ml/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A price-movement forecasting pipeline that pairs classic RSI-based technical
 analysis (70-30 and 50-30 crossover strategies) with supervised machine
 learning (Linear Regression, Random Forest, and Gradient-Boosted Trees) to
