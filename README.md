@@ -321,15 +321,3 @@ exercised in this codebase, for anyone verifying claims against the code:
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-## Contact
-
-**Rohith Sure**
-Data Analyst / Data Engineer | MS Data Science, Stevens Institute of Technology
-
-- Email: surerh2000@gmail.com
-- GitHub: [@rohithsure2000](https://github.com/rohithsure2000)
-- LinkedIn: *add your LinkedIn URL here*
-
-Open to Data Engineer, Data Analyst, Data Scientist, and Machine Learning
-Engineer roles. Feel free to reach out.
