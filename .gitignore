@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+
+# Environment / secrets
+.env
+
+# Data and generated outputs (kept out of version control; regenerate via
+# `python scripts/run_pipeline.py`)
+data/raw/*.csv
+data/processed/*.csv
+outputs/*.json
+outputs/figures/*.png
+
+# Keep directory structure in git
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!outputs/figures/.gitkeep
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/

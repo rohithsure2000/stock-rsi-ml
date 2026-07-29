@@ -1,0 +1,45 @@
+# Configuration for the RSI + ML stock prediction pipeline.
+# Values here mirror the defaults in src/, exposed for easy tuning
+# without touching code.
+
+data:
+  ticker: "AAPL"
+  prefer_real_data: false        # set true + `pip install yfinance` to pull live data
+  start_date: "2022-01-01"
+  end_date: "2024-12-31"
+  cache_path: "data/raw/ohlcv.csv"
+
+features:
+  rsi_period: 14
+  bollinger_window: 20
+  bollinger_std: 2.0
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  rolling_vol_window: 10
+  volume_zscore_window: 20
+
+signals:
+  rsi_70_30:
+    overbought: 70
+    oversold: 30
+  rsi_50_30:
+    midline: 50
+    lookback_days: 10
+  model_blend:
+    buy_threshold: 0.0025   # minimum predicted next-day return to confirm a BUY
+    sell_threshold: -0.0025
+
+modeling:
+  test_size: 0.2            # chronological holdout fraction
+  cv_splits: 5              # TimeSeriesSplit folds
+  models:
+    - linear_regression
+    - random_forest
+    - gradient_boosted_trees
+  random_state: 42
+
+output:
+  metrics_path: "outputs/model_metrics.json"
+  report_path: "outputs/final_report.json"
+  figures_dir: "outputs/figures"

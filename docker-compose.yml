@@ -1,0 +1,10 @@
+services:
+  pipeline:
+    build: .
+    container_name: stock-rsi-ml-pipeline
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    command: ["--ticker", "AAPL", "--verbose"]
