@@ -2,23 +2,9 @@
 # MAGIC %md
 # MAGIC # Stock Market Prediction Using RSI + Spark MLlib
 # MAGIC
-# MAGIC This notebook mirrors `src/` in the repository root, reimplemented with
-# MAGIC **PySpark / Spark MLlib** for direct use on a Databricks cluster (this is
-# MAGIC the environment the original version of this project was built on).
-# MAGIC
-# MAGIC Pipeline stages:
-# MAGIC 1. Load OHLCV data into a Spark DataFrame
-# MAGIC 2. Compute RSI(14) and supporting technical indicators via Spark window functions
-# MAGIC 3. Generate 70-30 and 50-30 RSI crossover signals
-# MAGIC 4. Assemble a feature vector and train Linear Regression, Random Forest, and
-# MAGIC    Gradient-Boosted Tree regressors from `pyspark.ml`, tuned via `CrossValidator`
-# MAGIC 5. Compare models on R^2 / RMSE and translate predictions into buy/sell thresholds
-# MAGIC
-# MAGIC NOTE: This file is written in Databricks' "notebook as .py source" format
-# MAGIC (`# COMMAND ----------` cell markers) so it can be imported directly as a
-# MAGIC Databricks notebook via Repos, or run locally with `spark-submit` given a
-# MAGIC local Spark install. It is not executed as part of this repo's CI/tests,
-# MAGIC since that runs on the lightweight scikit-learn implementation in `src/`.
+# MAGIC RSI(14) + technical indicators -> Linear Regression / Random Forest / GBT
+# MAGIC (Spark MLlib) to predict next-day return, blended with 70-30 and 50-30
+# MAGIC RSI crossover signals into a buy/sell decision.
 
 # COMMAND ----------
 

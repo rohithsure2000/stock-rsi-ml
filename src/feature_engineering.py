@@ -1,9 +1,4 @@
-"""
-feature_engineering.py
-
-Computes RSI and a supporting set of technical indicators, then assembles
-the feature matrix and regression target used by the modeling stage.
-"""
+"""RSI + technical indicators -> feature matrix for the models."""
 
 from __future__ import annotations
 
@@ -12,9 +7,7 @@ import numpy as np
 
 
 def compute_rsi(close: pd.Series, period: int = 14) -> pd.Series:
-    """Classic Wilder's RSI using an exponential (Wilder) moving average
-    of gains and losses.
-    """
+    """Wilder's RSI (EMA of gains/losses, not simple average)."""
     delta = close.diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
@@ -25,13 +18,12 @@ def compute_rsi(close: pd.Series, period: int = 14) -> pd.Series:
     rs = avg_gain / avg_loss.replace(0, np.nan)
     rsi = 100 - (100 / (1 + rs))
 
-    # Edge cases where avg_loss == 0: RSI is 100 if there were gains, and
-    # neutral (50) only in the degenerate case of literally no price change.
+    # avg_loss == 0: RSI should be 100 (not NaN->50) if there were gains
     all_flat = (avg_gain == 0) & (avg_loss == 0)
     only_gains = (avg_loss == 0) & (avg_gain > 0)
     rsi[only_gains] = 100.0
     rsi[all_flat] = 50.0
-    rsi = rsi.fillna(50)  # remaining NaNs occur before `period` warmup rows
+    rsi = rsi.fillna(50)
     return rsi
 
 
@@ -54,10 +46,7 @@ def compute_bollinger_bands(close: pd.Series, window: int = 20, n_std: float = 2
 
 
 def build_feature_frame(df: pd.DataFrame, rsi_period: int = 14) -> pd.DataFrame:
-    """Takes raw OHLCV data and returns a DataFrame of engineered features
-    plus the regression target (`target_next_return`: next-day close-to-close
-    percentage return).
-    """
+    """Adds indicator columns + target_next_return to raw OHLCV."""
     out = df.copy()
 
     out["rsi_14"] = compute_rsi(out["close"], period=rsi_period)
@@ -90,7 +79,6 @@ def build_feature_frame(df: pd.DataFrame, rsi_period: int = 14) -> pd.DataFrame:
     out["price_to_sma20"] = out["close"] / out["sma_20"] - 1
     out["sma5_sma20_spread"] = out["sma_5"] / out["sma_20"] - 1
 
-    # Regression target: next trading day's close-to-close return.
     out["target_next_return"] = out["close"].pct_change().shift(-1)
 
     return out

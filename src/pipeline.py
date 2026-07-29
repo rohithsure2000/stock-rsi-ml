@@ -1,13 +1,5 @@
-"""
-pipeline.py
-
-End-to-end orchestration: ingest data -> engineer features -> train/tune
-models -> generate RSI + model-blended signals -> backtest -> save
-artifacts (metrics JSON, figures, processed dataset).
-
-Run with: `python -m src.pipeline` (see scripts/run_pipeline.py for a
-thin CLI wrapper) or via `docker compose run pipeline`.
-"""
+"""End-to-end: data -> features -> models -> signals -> backtest -> figures.
+Run via `python scripts/run_pipeline.py` or `docker compose run pipeline`."""
 
 from __future__ import annotations
 

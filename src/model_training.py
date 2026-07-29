@@ -1,22 +1,8 @@
-"""
-model_training.py
+"""Trains/tunes LR, RF, GBT to predict next-day return and picks the best
+on held-out RMSE. CV is TimeSeriesSplit (no shuffling future into past).
 
-Trains and compares three regression models to predict next-day return:
-  - Linear Regression
-  - Random Forest Regressor
-  - Gradient Boosted Trees (GradientBoostingRegressor)
-
-Uses TimeSeriesSplit cross-validation (never shuffling future data into
-the past) combined with GridSearchCV for hyperparameter tuning, and
-reports R^2 / RMSE on a held-out, chronologically-final test split.
-
-Note on Spark MLlib: the original team project referenced in this
-portfolio was built on Databricks using Spark MLlib. This repository
-reimplements the identical modeling logic (same three algorithms, same
-CV/tuning approach, same evaluation metrics) using scikit-learn so the
-project is runnable anywhere without a Spark cluster. A structurally
-equivalent PySpark version is included in `notebooks/databricks_pyspark_pipeline.py`
-for direct use on Databricks.
+Uses scikit-learn instead of Spark MLlib so it runs without a cluster -
+see notebooks/databricks_pyspark_pipeline.py for the Spark version.
 """
 
 from __future__ import annotations
@@ -69,10 +55,7 @@ def time_ordered_split(X: pd.DataFrame, y: pd.Series, test_size: float = 0.2):
 
 
 def train_and_tune_all(X_train: pd.DataFrame, y_train: pd.Series, n_splits: int = 5) -> dict:
-    """Runs GridSearchCV (with TimeSeriesSplit) for every model in MODEL_GRID
-    and returns the fitted best estimators keyed by model name, along with
-    their CV scores.
-    """
+    """GridSearchCV per model in MODEL_GRID, returns fitted best estimators + CV scores."""
     tscv = TimeSeriesSplit(n_splits=n_splits)
     results = {}
 

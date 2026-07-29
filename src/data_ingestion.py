@@ -1,22 +1,5 @@
-"""
-data_ingestion.py
-
-Provides two data sources for the pipeline:
-
-1. `load_from_yfinance(ticker, start, end)` - pulls real historical OHLCV
-   data using the `yfinance` package. This is the recommended path when
-   running the pipeline outside a network-restricted environment.
-
-2. `generate_synthetic_ohlcv(...)` - produces a realistic synthetic OHLCV
-   series calibrated to historically observed AAPL statistics (annualized
-   drift, volatility, volatility clustering via a simple GARCH(1,1)-style
-   process, and volume behavior correlated with absolute returns). This is
-   used as the default/fallback data source so the pipeline is fully
-   reproducible without any external API access.
-
-Both paths return a pandas DataFrame indexed by trading date with columns:
-['open', 'high', 'low', 'close', 'volume'].
-"""
+"""Loads OHLCV data - real via yfinance, or a synthetic fallback so the
+pipeline runs without network access."""
 
 from __future__ import annotations
 
@@ -30,13 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def load_from_yfinance(ticker: str, start: str, end: str) -> pd.DataFrame:
-    """Load real historical OHLCV data via yfinance.
-
-    Requires the `yfinance` package and outbound network access to
-    Yahoo Finance. Raises ImportError / ConnectionError if unavailable,
-    so callers should catch and fall back to synthetic data if needed.
-    """
-    import yfinance as yf  # imported lazily; optional dependency
+    """Pull real OHLCV data via yfinance. Raises if unavailable - caller
+    should catch and fall back to synthetic data."""
+    import yfinance as yf
 
     df = yf.download(ticker, start=start, end=end, progress=False)
     if df.empty:
@@ -68,27 +47,16 @@ def generate_synthetic_ohlcv(
     seed: int = 42,
     start_date: str = "2022-01-03",
 ) -> pd.DataFrame:
-    """Generate a realistic synthetic daily OHLCV series.
-
-    The close price follows a GARCH(1,1)-style volatility process layered
-    on top of geometric Brownian motion, which reproduces the volatility
-    clustering seen in real large-cap equities (calm periods punctuated by
-    turbulent ones) much more realistically than plain constant-volatility
-    GBM. Intraday open/high/low are derived from the close-to-close move
-    with a Brownian-bridge-style intraday range. Volume is modeled as a
-    base level modulated by absolute return (higher volume on big move
-    days), which is a well-documented empirical regularity.
-
-    Parameters mirror typical AAPL-like large-cap tech stock behavior by
-    default, but can be tuned for other tickers/regimes.
-    """
+    """GARCH(1,1)-style volatility on top of GBM, so it clusters like a
+    real stock instead of constant-vol random walk. Defaults are roughly
+    AAPL-shaped but tunable."""
     rng = np.random.default_rng(seed)
 
     dt = 1 / 252
     if long_run_var is None:
         long_run_var = annual_vol ** 2
 
-    # --- Simulate daily variance via a GARCH(1,1)-style recursion ---
+    # variance recursion (GARCH-ish)
     variances = np.empty(n_days)
     variances[0] = long_run_var
     shocks = rng.standard_normal(n_days)
@@ -107,7 +75,7 @@ def generate_synthetic_ohlcv(
     log_returns = daily_drift + daily_vol * shocks
     close = start_price * np.exp(np.cumsum(log_returns))
 
-    # --- Derive open/high/low from the close path ---
+    # open/high/low from the close path
     prev_close = np.concatenate([[start_price], close[:-1]])
     intraday_range_pct = np.abs(rng.normal(loc=daily_vol * 0.6, scale=daily_vol * 0.25))
     intraday_range_pct = np.clip(intraday_range_pct, 0.001, None)
@@ -117,7 +85,7 @@ def generate_synthetic_ohlcv(
     low = np.minimum(open_, close) * (1 - intraday_range_pct * rng.uniform(0.3, 1.0, n_days))
     low = np.clip(low, 0.01, None)
 
-    # --- Volume: base level scaled up on high-absolute-return days ---
+    # bigger volume on bigger move days
     abs_ret_z = np.abs(log_returns) / (daily_vol + 1e-9)
     volume = base_volume * (1 + 0.35 * abs_ret_z) * rng.lognormal(mean=0, sigma=0.18, size=n_days)
     volume = volume.astype(np.int64)
@@ -146,12 +114,8 @@ def get_dataset(
     end: str = "2024-12-31",
     cache_path: str | Path = "data/raw/ohlcv.csv",
 ) -> pd.DataFrame:
-    """Single entry point used by the pipeline.
-
-    Tries real data first if `prefer_real=True`, otherwise (or on failure)
-    falls back to the synthetic generator. Caches the resulting dataset to
-    `cache_path` so subsequent pipeline runs are deterministic and fast.
-    """
+    """Real data if prefer_real=True and reachable, else synthetic.
+    Caches to cache_path either way."""
     cache_path = Path(cache_path)
 
     if prefer_real:

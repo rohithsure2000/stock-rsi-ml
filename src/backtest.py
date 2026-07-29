@@ -1,14 +1,5 @@
-"""
-backtest.py
-
-Translates model predictions + RSI signals into a simple long/flat/short
-trading strategy and evaluates it against a buy-and-hold benchmark.
-
-This is intentionally a *simple, transparent* backtest (no slippage/fee
-modeling, no position sizing beyond full-in/full-out) meant to illustrate
-how the model outputs and RSI signals connect to a trading decision -
-not a production trading system.
-"""
+"""Turns signals + realized returns into a strategy equity curve vs.
+buy-and-hold. No fees/slippage/sizing - illustrative, not a live system."""
 
 from __future__ import annotations
 
@@ -21,10 +12,7 @@ def backtest_strategy(
     signal_column: str,
     return_column: str = "target_next_return",
 ) -> pd.DataFrame:
-    """Given a DataFrame with a trading signal column (-1/0/1) and the
-    realized next-day return, compute strategy returns and cumulative
-    performance vs. buy-and-hold.
-    """
+    """signal_column is -1/0/1; multiplies by realized return per day."""
     df = modeling_df.dropna(subset=[signal_column, return_column]).copy()
 
     df["strategy_return"] = df[signal_column] * df[return_column]
