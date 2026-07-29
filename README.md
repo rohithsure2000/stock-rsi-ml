@@ -26,8 +26,10 @@ Built by **Rohith Sure** — [github.com/rohithsure2000](https://github.com/rohi
 - [A Note on Data](#a-note-on-data)
 - [Running on Databricks / Spark MLlib](#running-on-databricks--spark-mllib)
 - [Testing](#testing)
+- [Skills Demonstrated](#skills-demonstrated)
 - [Limitations](#limitations)
 - [License](#license)
+- [Contact](#contact)
 
 ## Overview
 
@@ -198,6 +200,10 @@ Outputs are written to:
 - `outputs/final_report.json` — end-to-end summary (best model + backtest)
 - `outputs/figures/*.png` — price/RSI chart, model comparison, equity curve
 
+For a narrative, chart-by-chart walkthrough of the same pipeline, see
+[`notebooks/exploratory_analysis.ipynb`](notebooks/exploratory_analysis.ipynb)
+— it renders directly on GitHub with all outputs already run.
+
 ## Project Structure
 
 ```
@@ -222,7 +228,8 @@ stock-rsi-ml/
 │   ├── backtest.py              # signal-to-return backtest + metrics
 │   └── pipeline.py              # end-to-end orchestration
 ├── notebooks/
-│   └── databricks_pyspark_pipeline.py   # Spark MLlib equivalent for Databricks
+│   ├── exploratory_analysis.ipynb        # rendered walkthrough with charts/tables
+│   └── databricks_pyspark_pipeline.py    # Spark MLlib equivalent for Databricks
 ├── scripts/
 │   └── run_pipeline.py          # CLI entry point
 ├── tests/
@@ -276,6 +283,25 @@ Covers RSI boundary conditions (all-gains, all-losses, no-losses edge
 cases), feature-frame schema, target-variable construction, and RSI
 crossover signal logic.
 
+## Skills Demonstrated
+
+A quick map from resume/job-description keywords to where they're actually
+exercised in this codebase, for anyone verifying claims against the code:
+
+| Skill | Where it's used |
+|---|---|
+| Technical analysis (RSI, MACD, Bollinger Bands) | `src/feature_engineering.py` |
+| Time-series cross-validation | `TimeSeriesSplit` in `src/model_training.py` |
+| Hyperparameter tuning | `GridSearchCV` (sklearn) / `CrossValidator` (Spark MLlib) |
+| Random Forest & Gradient-Boosted Trees | `src/model_training.py`, `notebooks/databricks_pyspark_pipeline.py` |
+| Spark MLlib / Databricks-style pipeline | `notebooks/databricks_pyspark_pipeline.py` |
+| Model evaluation (R², RMSE) | `src/model_training.py::evaluate_on_test` |
+| Backtesting / strategy evaluation | `src/backtest.py` |
+| Unit testing | `tests/` (pytest) |
+| CI/CD | `.github/workflows/ci.yml` (GitHub Actions) |
+| Containerization | `Dockerfile`, `docker-compose.yml` |
+| Config-driven design | `config/config.yaml` |
+
 ## Limitations
 
 - The bundled dataset is synthetic; results will differ (likely
@@ -295,3 +321,15 @@ crossover signal logic.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Contact
+
+**Rohith Sure**
+Data Analyst / Data Engineer | MS Data Science, Stevens Institute of Technology
+
+- Email: surerh2000@gmail.com
+- GitHub: [@rohithsure2000](https://github.com/rohithsure2000)
+- LinkedIn: *add your LinkedIn URL here*
+
+Open to Data Engineer, Data Analyst, Data Scientist, and Machine Learning
+Engineer roles. Feel free to reach out.
